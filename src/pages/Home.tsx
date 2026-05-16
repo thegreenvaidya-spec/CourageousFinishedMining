@@ -121,7 +121,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="font-serif font-bold text-2xl text-slate-800">Dr. Chirag Santoki</p>
-                    <p className="text-sm text-muted-foreground mt-1">MBBS, MD – General Medicine</p>
+                    <p className="text-sm text-muted-foreground mt-1">BHMS</p>
                   </div>
                   <div className="flex items-center justify-center gap-1 pt-1">
                     {[1,2,3,4,5].map(i => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
@@ -273,7 +273,7 @@ export default function Home() {
                 </Button>
               </Link>
               <a href="tel:+919426993723">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-12 px-8 font-medium">
+                <Button size="lg" className="bg-white/10 border border-white/40 text-white hover:bg-white/20 h-12 px-8 font-medium backdrop-blur-sm">
                   <Phone size={16} className="mr-2" />
                   +91 94269 93723
                 </Button>

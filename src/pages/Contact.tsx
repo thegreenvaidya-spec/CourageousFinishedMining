@@ -51,7 +51,7 @@ export default function Contact() {
           </a>
           <p className="text-xs text-slate-500 mt-1">Available on WhatsApp</p>
           <a
-            href="https://whatsapp.com/send?phone=919426993723"
+            href="https://wa.me/919426993723"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-green-600 font-medium hover:underline mt-2"

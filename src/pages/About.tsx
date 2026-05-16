@@ -28,7 +28,7 @@ export default function About() {
   ];
 
   const credentials = [
-    { icon: GraduationCap, label: "Education", value: "MBBS, MD (General Medicine)" },
+    { icon: GraduationCap, label: "Education", value: "BHMS" },
     { icon: Award, label: "Experience", value: "6+ Years in Healthcare" },
     { icon: BookOpen, label: "Specialties", value: "Internal Medicine, Diabetes, Hypertension" },
   ];
@@ -65,7 +65,7 @@ export default function About() {
                 </div>
                 <div className="text-center">
                   <p className="font-serif font-bold text-2xl text-slate-800">Dr. Chirag Santoki</p>
-                  <p className="text-sm text-slate-500 mt-1">MBBS, MD – General Medicine</p>
+                  <p className="text-sm text-slate-500 mt-1">BHMS</p>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-primary py-4 text-center">
                   <p className="text-white font-semibold text-sm">Om Clinic, Rajkot</p>
