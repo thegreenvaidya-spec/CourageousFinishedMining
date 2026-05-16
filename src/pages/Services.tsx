@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { Stethoscope, HeartPulse, Activity, UserRound, ShieldCheck, Thermometer, Brain, Pill, ChevronRight, CalendarCheck } from "lucide-react";
 import { Link } from "wouter";
@@ -15,9 +15,6 @@ const fadeUp = {
 };
 
 export default function Services() {
-  useEffect(() => {
-    document.title = "Services | Om Clinic Rajkot";
-  }, []);
 
   const services = [
     {
@@ -78,6 +75,12 @@ export default function Services() {
 
   return (
     <Layout>
+      <SEO
+        title="Medical Services | Om Clinic Rajkot – Dr. Chirag Santoki"
+        description="Om Clinic Rajkot offers expert general medicine, diabetes management, hypertension care, fever treatment, respiratory care, family healthcare and more. Dr. Chirag Santoki, BHMS. Raiya, Rajkot."
+        canonical="https://omclinicrajkot.com/services"
+        keywords="general medicine Rajkot, diabetes treatment Rajkot, hypertension doctor Rajkot, fever treatment Rajkot, family healthcare Rajkot, Om Clinic services"
+      />
       {/* Header */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">

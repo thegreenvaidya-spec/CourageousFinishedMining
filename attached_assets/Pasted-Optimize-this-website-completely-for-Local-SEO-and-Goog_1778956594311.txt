@@ -1,0 +1,72 @@
+Optimize this website completely for Local SEO and Google ranking for “OM Clinic Rajkot” and “Dr Chirag Solanki”.
+
+Goal:
+When users search:
+- OM Clinic
+- OM Clinic Rajkot
+- Dr Chirag Solanki
+- Clinic in Rajkot
+- Best clinic in Rajkot
+
+this website should have the best possible chance to rank highly on Google search results and support Google Maps visibility.
+
+Tasks to do:
+
+1. Technical SEO
+- Add proper meta title, meta description, and keywords
+- Generate sitemap.xml
+- Generate robots.txt
+- Add canonical URLs
+- Optimize page speed and Core Web Vitals
+- Optimize images and lazy loading
+- Ensure full mobile responsiveness
+- Add Open Graph and social sharing tags
+- Add structured data/schema markup for medical clinic/local business/doctor
+
+2. Local SEO
+- Mention:
+  - OM Clinic
+  - Rajkot
+  - Gujarat
+  - Dr Chirag Solanki
+naturally throughout the site
+- Add sections for:
+  - services
+  - clinic timings
+  - address
+  - contact info
+  - Google Maps embed
+  - FAQs
+- Add SEO-friendly headings and content
+- Create location-based SEO content for Rajkot searches
+
+3. Google Business Profile Optimization
+- Create a checklist section explaining how to:
+  - connect the website to Google Business Profile
+  - improve Google Maps ranking
+  - collect reviews properly
+  - maintain NAP consistency (name, address, phone number)
+
+4. Performance
+- Make the website extremely fast
+- Compress assets
+- Use semantic HTML
+- Improve accessibility and SEO scores
+
+5. Trust & Conversion
+- Add WhatsApp contact button
+- Add appointment/contact form
+- Add testimonials/reviews section
+- Add professional clinic UI/UX
+
+6. Deployment Readiness
+- Prepare the website for custom domain connection
+- Ensure SEO works properly after deployment
+- Add favicon and proper branding
+
+Important:
+- Keep the design modern, premium, and trustworthy
+- Do not overstuff keywords
+- Follow modern Google SEO best practices
+- Optimize for both desktop and mobile
+- Ensure all SEO settings are production-ready before deployment

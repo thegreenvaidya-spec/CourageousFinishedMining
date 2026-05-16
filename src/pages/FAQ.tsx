@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, CalendarCheck } from "lucide-react";
 import { Link } from "wouter";
@@ -92,13 +93,26 @@ function FAQItem({ q, a, i }: { q: string; a: string; i: number }) {
   );
 }
 
-export default function FAQ() {
-  useEffect(() => {
-    document.title = "FAQ | Om Clinic Rajkot";
-  }, []);
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map((f) => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": { "@type": "Answer", "text": f.a },
+  })),
+};
 
+export default function FAQ() {
   return (
     <Layout>
+      <SEO
+        title="FAQ – Om Clinic Rajkot | Dr. Chirag Santoki"
+        description="Answers to common questions about Om Clinic Rajkot — booking appointments, clinic hours, services offered by Dr. Chirag Santoki (BHMS), location in Raiya Rajkot, and more."
+        canonical="https://omclinicrajkot.com/faq"
+        keywords="Om Clinic FAQ, Om Clinic timings, Dr Chirag Santoki appointment, clinic Rajkot questions"
+        schema={faqSchema}
+      />
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>

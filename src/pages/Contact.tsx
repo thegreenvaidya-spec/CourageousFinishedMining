@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Clock, MessageCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,6 @@ const fadeUp = {
 };
 
 export default function Contact() {
-  useEffect(() => {
-    document.title = "Contact Us | Om Clinic Rajkot";
-  }, []);
 
   const infoCards = [
     {
@@ -84,6 +81,12 @@ export default function Contact() {
 
   return (
     <Layout>
+      <SEO
+        title="Contact Om Clinic Rajkot | Dr. Chirag Santoki – +91 94269 93723"
+        description="Contact Om Clinic Rajkot – call or WhatsApp Dr. Chirag Santoki at +91 94269 93723. Located at 119 Savan Signet Commercial, Raiya Road, Rajkot 360007. Open 7 days a week."
+        canonical="https://omclinicrajkot.com/contact"
+        keywords="Om Clinic contact, Om Clinic Rajkot address, Dr Chirag Santoki phone number, clinic Raiya Rajkot"
+      />
       {/* Header */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">

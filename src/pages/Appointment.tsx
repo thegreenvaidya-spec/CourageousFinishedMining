@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import SEO from "@/components/SEO";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -39,10 +40,6 @@ export default function Appointment() {
   const [selectedSlot, setSelectedSlot] = useState("");
   const [slots, setSlots] = useState<SlotsResponse | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
-
-  useEffect(() => {
-    document.title = "Book Appointment | Om Clinic Rajkot";
-  }, []);
 
   useEffect(() => {
     if (!form.date) {
@@ -130,6 +127,11 @@ export default function Appointment() {
   if (submitted) {
     return (
       <Layout>
+        <SEO
+          title="Appointment Confirmed | Om Clinic Rajkot"
+          description="Your appointment request at Om Clinic Rajkot has been received. Dr. Chirag Santoki's team will confirm your slot shortly."
+          canonical="https://omclinicrajkot.com/appointment"
+        />
         <section className="py-24 bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-[60vh] flex items-center">
           <div className="container mx-auto px-4 md:px-6 max-w-lg text-center">
             <motion.div
@@ -174,6 +176,12 @@ export default function Appointment() {
 
   return (
     <Layout>
+      <SEO
+        title="Book an Appointment | Om Clinic Rajkot – Dr. Chirag Santoki"
+        description="Book an appointment online at Om Clinic Rajkot. Choose your preferred date and time slot with Dr. Chirag Santoki (BHMS). Available Monday–Sunday in Raiya, Rajkot."
+        canonical="https://omclinicrajkot.com/appointment"
+        keywords="book doctor appointment Rajkot, Om Clinic appointment, Dr Chirag Santoki booking, online appointment Rajkot clinic"
+      />
       {/* Header */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">

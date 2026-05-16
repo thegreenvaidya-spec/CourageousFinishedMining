@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://omclinicrajkot.com/sitemap.xml
+
+# Disallow admin/api paths from crawling
+Disallow: /api/

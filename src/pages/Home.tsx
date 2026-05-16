@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -27,10 +27,38 @@ const fadeUp = {
   }),
 };
 
+const homeSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where is Om Clinic located in Rajkot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Om Clinic is located at 119, Savan Signet Commercial, Opp. Tulsi Supermarket, Raiya Road, Rajkot – 360007, Gujarat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are Om Clinic's opening hours?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Monday to Saturday: 9:30 AM – 1:00 PM and 4:30 PM – 9:00 PM. Sunday: 9:00 AM – 1:00 PM and 4:30 PM – 8:00 PM."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I book an appointment at Om Clinic Rajkot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can book online at omclinicrajkot.com/appointment or call/WhatsApp +91 94269 93723."
+      }
+    }
+  ]
+};
+
 export default function Home() {
-  useEffect(() => {
-    document.title = "Om Clinic Rajkot | Dr. Chirag Santoki";
-  }, []);
 
   const services = [
     { title: "Preventive Care", icon: ShieldCheck, desc: "Routine check-ups and screenings to keep you ahead of illness.", color: "text-blue-600 bg-blue-50" },
@@ -56,6 +84,13 @@ export default function Home() {
 
   return (
     <Layout>
+      <SEO
+        title="Om Clinic Rajkot | Dr. Chirag Santoki BHMS – Best Clinic in Rajkot"
+        description="Om Clinic Rajkot – Dr. Chirag Santoki (BHMS) provides expert general medicine, chronic disease management, family healthcare & preventive care in Raiya, Rajkot. Open 7 days. Call +91 94269 93723."
+        canonical="https://omclinicrajkot.com/"
+        keywords="Om Clinic Rajkot, Dr Chirag Santoki, clinic in Rajkot, best clinic Rajkot, BHMS doctor Rajkot, general medicine Rajkot, family doctor Rajkot"
+        schema={homeSchema}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-green-50 py-20 md:py-28">
         {/* Decorative blobs */}

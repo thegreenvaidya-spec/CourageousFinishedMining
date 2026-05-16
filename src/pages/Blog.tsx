@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { Clock, ChevronRight, CalendarCheck } from "lucide-react";
 import { Link } from "wouter";
@@ -72,14 +72,17 @@ const posts = [
 ];
 
 export default function Blog() {
-  useEffect(() => {
-    document.title = "Health Blog | Om Clinic Rajkot";
-  }, []);
 
   const [featured, ...rest] = posts;
 
   return (
     <Layout>
+      <SEO
+        title="Health Blog | Om Clinic Rajkot – Dr. Chirag Santoki"
+        description="Health tips and medical insights from Dr. Chirag Santoki, BHMS, Om Clinic Rajkot. Articles on diabetes, hypertension, fever, preventive care, thyroid and family health."
+        canonical="https://omclinicrajkot.com/blog"
+        keywords="health blog Rajkot, diabetes tips, hypertension advice, Om Clinic health articles, Dr Chirag Santoki blog"
+      />
       {/* Header */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">

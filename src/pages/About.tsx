@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { GraduationCap, Award, BookOpen, CheckCircle2, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
@@ -15,9 +15,6 @@ const fadeUp = {
 };
 
 export default function About() {
-  useEffect(() => {
-    document.title = "About Dr. Chirag Santoki | Om Clinic Rajkot";
-  }, []);
 
   const highlights = [
     "Listens carefully to understand the full patient history",
@@ -35,6 +32,12 @@ export default function About() {
 
   return (
     <Layout>
+      <SEO
+        title="Dr. Chirag Santoki BHMS – About | Om Clinic Rajkot"
+        description="Meet Dr. Chirag Santoki, BHMS – founder of Om Clinic Rajkot. Over 6 years of experience in general medicine, chronic disease management, and compassionate family care in Raiya, Rajkot, Gujarat."
+        canonical="https://omclinicrajkot.com/about"
+        keywords="Dr Chirag Santoki, BHMS doctor Rajkot, Om Clinic Rajkot doctor, general physician Rajkot"
+      />
       {/* Page header */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 py-16 md:py-20 border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-6 text-center space-y-4">
