@@ -10,6 +10,21 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+// Admin auth middleware
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+function requireAdmin(req: Request, res: Response, next: () => void) {
+  const pw = req.headers["x-admin-password"];
+  if (!ADMIN_PASSWORD) {
+    res.status(500).json({ error: "Admin password not configured" });
+    return;
+  }
+  if (pw !== ADMIN_PASSWORD) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  next();
+}
+
 // Health check
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ ok: true });
@@ -104,7 +119,7 @@ app.post("/api/appointment", async (req: Request, res: Response) => {
 });
 
 // List all appointments (admin) with optional filters
-app.get("/api/appointments", async (req: Request, res: Response) => {
+app.get("/api/appointments", requireAdmin, async (req: Request, res: Response) => {
   const { date, status, search } = req.query as { date?: string; status?: string; search?: string };
 
   try {
@@ -137,7 +152,7 @@ app.get("/api/appointments", async (req: Request, res: Response) => {
 });
 
 // Get appointment stats for admin dashboard
-app.get("/api/appointments/stats", async (_req: Request, res: Response) => {
+app.get("/api/appointments/stats", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const today = new Date().toISOString().split("T")[0];
     const [totalResult, todayResult, pendingResult, confirmedResult, cancelledResult] = await Promise.all([
@@ -161,7 +176,7 @@ app.get("/api/appointments/stats", async (_req: Request, res: Response) => {
 });
 
 // Update appointment status (admin)
-app.patch("/api/appointments/:id", async (req: Request, res: Response) => {
+app.patch("/api/appointments/:id", requireAdmin, async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
   const validStatuses = ["pending", "confirmed", "cancelled", "completed"];
@@ -179,7 +194,7 @@ app.patch("/api/appointments/:id", async (req: Request, res: Response) => {
 });
 
 // Delete appointment (admin)
-app.delete("/api/appointments/:id", async (req: Request, res: Response) => {
+app.delete("/api/appointments/:id", requireAdmin, async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     await pool.query("DELETE FROM appointments WHERE id = $1", [id]);

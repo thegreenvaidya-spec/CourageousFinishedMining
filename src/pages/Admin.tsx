@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarCheck,
   Users,
@@ -13,6 +13,11 @@ import {
   Calendar,
   ChevronDown,
   Filter,
+  Shield,
+  Lock,
+  LogOut,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface Appointment {
@@ -46,10 +51,38 @@ const fadeUp = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.4, delay: i * 0.06 } }),
 };
 
+const AUTH_KEY = "omclinic_admin_auth";
+const AUTH_EXPIRY_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+function getStoredAuth(): string | null {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return null;
+    const { password, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp > AUTH_EXPIRY_MS) {
+      localStorage.removeItem(AUTH_KEY);
+      return null;
+    }
+    return password;
+  } catch {
+    return null;
+  }
+}
+
+function storeAuth(password: string) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify({ password, timestamp: Date.now() }));
+}
+
+function clearAuth() {
+  localStorage.removeItem(AUTH_KEY);
+}
+
 export default function Admin() {
-  useEffect(() => {
-    document.title = "Admin Dashboard | Om Clinic Rajkot";
-  }, []);
+  const [authPassword, setAuthPassword] = useState<string | null>(getStoredAuth());
+  const [loginPw, setLoginPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -59,11 +92,14 @@ export default function Admin() {
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];
+  const headers = () => ({ "X-Admin-Password": authPassword || "" });
 
   const fetchData = useCallback(async () => {
+    if (!authPassword) return;
     setLoading(true);
+    setUnauthorized(false);
     try {
       const params = new URLSearchParams();
       if (filterDate) params.append("date", filterDate);
@@ -71,9 +107,16 @@ export default function Admin() {
       if (search.trim()) params.append("search", search.trim());
 
       const [apptRes, statsRes] = await Promise.all([
-        fetch(`/api/appointments?${params.toString()}`),
-        fetch("/api/appointments/stats"),
+        fetch(`/api/appointments?${params.toString()}`, { headers: headers() }),
+        fetch("/api/appointments/stats", { headers: headers() }),
       ]);
+
+      if (apptRes.status === 401 || statsRes.status === 401) {
+        setUnauthorized(true);
+        clearAuth();
+        setAuthPassword(null);
+        return;
+      }
 
       if (apptRes.ok) {
         setAppointments(await apptRes.json());
@@ -87,24 +130,70 @@ export default function Admin() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [filterDate, filterStatus, search]);
+  }, [authPassword, filterDate, filterStatus, search]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    document.title = authPassword ? "Admin Dashboard | Om Clinic Rajkot" : "Admin Login | Om Clinic Rajkot";
+  }, [authPassword]);
+
+  useEffect(() => {
+    if (authPassword) {
+      fetchData();
+    }
+  }, [authPassword, fetchData]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginPw.trim()) return;
+    setLoginLoading(true);
+    setLoginError("");
+    try {
+      const res = await fetch("/api/appointments/stats", {
+        headers: { "X-Admin-Password": loginPw.trim() },
+      });
+      if (res.status === 401) {
+        setLoginError("Incorrect password. Please try again.");
+      } else if (res.ok) {
+        storeAuth(loginPw.trim());
+        setAuthPassword(loginPw.trim());
+        setLoginPw("");
+      } else {
+        setLoginError("Something went wrong. Please try again.");
+      }
+    } catch {
+      setLoginError("Network error. Please try again.");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearAuth();
+    setAuthPassword(null);
+    setAppointments([]);
+    setStats(null);
+    setLoginPw("");
+    setLoginError("");
+    setUnauthorized(false);
+  };
 
   const updateStatus = async (id: number, status: Appointment["status"]) => {
+    if (!authPassword) return;
     try {
       const res = await fetch(`/api/appointments/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Admin-Password": authPassword },
         body: JSON.stringify({ status }),
       });
+      if (res.status === 401) {
+        setUnauthorized(true);
+        clearAuth();
+        setAuthPassword(null);
+        return;
+      }
       if (res.ok) {
-        setAppointments((prev) =>
-          prev.map((a) => (a.id === id ? { ...a, status } : a))
-        );
-        fetchData(); // refresh stats
+        setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+        fetchData();
       }
     } catch (err) {
       console.error("Update error:", err);
@@ -112,9 +201,19 @@ export default function Admin() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!authPassword) return;
     if (!confirm("Are you sure you want to delete this appointment?")) return;
     try {
-      const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "DELETE",
+        headers: { "X-Admin-Password": authPassword },
+      });
+      if (res.status === 401) {
+        setUnauthorized(true);
+        clearAuth();
+        setAuthPassword(null);
+        return;
+      }
       if (res.ok) {
         setAppointments((prev) => prev.filter((a) => a.id !== id));
         setDeleteId(null);
@@ -140,6 +239,88 @@ export default function Admin() {
       ]
     : [];
 
+  // Login screen
+  if (!authPassword) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm"
+        >
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Shield className="text-primary" size={28} />
+              </div>
+              <h1 className="font-serif font-bold text-xl text-slate-900">Admin Dashboard</h1>
+              <p className="text-sm text-slate-400 mt-1">Om Clinic · Dr. Chirag Santoki</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type={showPw ? "text" : "password"}
+                    value={loginPw}
+                    onChange={(e) => setLoginPw(e.target.value)}
+                    placeholder="Enter admin password"
+                    className="w-full pl-9 pr-10 h-11 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                    autoFocus
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    tabIndex={-1}
+                  >
+                    {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {loginError && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2"
+                  >
+                    {loginError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <button
+                type="submit"
+                disabled={loginLoading || !loginPw.trim()}
+                className="w-full h-11 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              >
+                {loginLoading ? (
+                  <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <Lock size={14} />
+                )}
+                {loginLoading ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+          </div>
+          <p className="text-center text-xs text-slate-400 mt-4">
+            Protected area. Unauthorized access is prohibited.
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Dashboard
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top bar */}
@@ -155,7 +336,9 @@ export default function Admin() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 hidden sm:inline">{new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "short", day: "numeric" })}</span>
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
+            </span>
             <button
               onClick={handleRefresh}
               className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-primary font-medium px-3 py-1.5 rounded-md hover:bg-slate-50 transition-colors"
@@ -164,9 +347,26 @@ export default function Admin() {
               <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
               Refresh
             </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-red-600 font-medium px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors"
+              title="Sign out"
+            >
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
         </div>
       </header>
+
+      {unauthorized && (
+        <div className="container mx-auto px-4 md:px-6 pt-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+            <AlertCircle size={16} />
+            Your session has expired. Please sign in again.
+          </div>
+        </div>
+      )}
 
       <main className="container mx-auto px-4 md:px-6 py-8 space-y-8">
         {/* Stats */}
