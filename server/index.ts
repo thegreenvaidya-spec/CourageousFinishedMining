@@ -11,14 +11,10 @@ const pool = new Pool({
 });
 
 // Admin auth middleware
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = "Chiragsantoki";
 function requireAdmin(req: Request, res: Response, next: () => void) {
   const pw = req.headers["x-admin-password"];
-  if (!ADMIN_PASSWORD) {
-    res.status(500).json({ error: "Admin password not configured" });
-    return;
-  }
-  if (pw !== ADMIN_PASSWORD) {
+  if (!pw || pw !== ADMIN_PASSWORD) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
