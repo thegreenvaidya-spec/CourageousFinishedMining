@@ -6,9 +6,37 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// SSL is required for most hosted PostgreSQL providers (Neon, Supabase, Railway, etc.)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes("sslmode=require")
+    ? { rejectUnauthorized: false }
+    : undefined,
 });
+
+// Auto-create the appointments table on startup
+async function setupDb() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS appointments (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        phone VARCHAR(50) NOT NULL,
+        date VARCHAR(20) NOT NULL,
+        time_slot VARCHAR(20) NOT NULL,
+        reason TEXT NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending' NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log("Database table ready");
+  } catch (err) {
+    console.error("Database setup error:", err);
+  }
+}
+
+// Run setup immediately (Vercel serverless cold start)
+setupDb();
 
 const ADMIN_PASSWORD = "Chiragsantoki";
 function requireAdmin(req: Request, res: Response, next: () => void) {
@@ -181,4 +209,5 @@ app.delete("/api/appointments/:id", requireAdmin, async (req: Request, res: Resp
   }
 });
 
+// Vercel serverless handler
 export default app;
