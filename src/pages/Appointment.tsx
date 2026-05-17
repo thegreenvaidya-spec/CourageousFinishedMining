@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SEO from "@/components/SEO";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
