@@ -209,5 +209,7 @@ app.delete("/api/appointments/:id", requireAdmin, async (req: Request, res: Resp
   }
 });
 
-// Vercel serverless handler
-export default app;
+// Vercel serverless handler — wraps Express app
+export default function handler(req: any, res: any) {
+  return app(req, res);
+}
