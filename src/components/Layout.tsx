@@ -39,7 +39,7 @@ function Navbar() {
                 className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium transition-colors",
                   location === link.href
-                    ? "text-primary bg-primary/8"
+                    ? "text-primary bg-primary/5"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
@@ -82,7 +82,7 @@ function Navbar() {
               className={cn(
                 "block px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                 location === link.href
-                  ? "text-primary bg-primary/8"
+                  ? "text-primary bg-primary/5"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               )}
             >

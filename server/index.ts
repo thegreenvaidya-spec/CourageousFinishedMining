@@ -30,19 +30,16 @@ app.get("/api/appointment/slots", async (req: Request, res: Response) => {
 
     const maxPerSlot = 3;
 
-    // Morning slots
     const morning = isSunday
       ? ["9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM"]
       : ["9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM"];
 
-    // Evening slots
     const evening = isSunday
       ? ["4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM"]
       : ["4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM"];
 
-    // Count existing bookings for this date per slot
     const result = await pool.query(
-      "SELECT time_slot, COUNT(*) as booked FROM appointments WHERE date = $1 GROUP BY time_slot",
+      "SELECT time_slot, COUNT(*) as booked FROM appointments WHERE date = $1 AND status != 'cancelled' GROUP BY time_slot",
       [date]
     );
 
@@ -84,9 +81,8 @@ app.post("/api/appointment", async (req: Request, res: Response) => {
   }
 
   try {
-    // Check if slot is still available
     const countResult = await pool.query(
-      "SELECT COUNT(*) as booked FROM appointments WHERE date = $1 AND time_slot = $2",
+      "SELECT COUNT(*) as booked FROM appointments WHERE date = $1 AND time_slot = $2 AND status != 'cancelled'",
       [date, timeSlot]
     );
     const booked = parseInt(countResult.rows[0].booked, 10);
@@ -107,16 +103,90 @@ app.post("/api/appointment", async (req: Request, res: Response) => {
   }
 });
 
-// List all appointments (for admin)
-app.get("/api/appointments", async (_req: Request, res: Response) => {
+// List all appointments (admin) with optional filters
+app.get("/api/appointments", async (req: Request, res: Response) => {
+  const { date, status, search } = req.query as { date?: string; status?: string; search?: string };
+
   try {
-    const result = await pool.query(
-      "SELECT * FROM appointments ORDER BY date DESC, time_slot ASC"
-    );
+    let query = "SELECT * FROM appointments WHERE 1=1";
+    const params: (string | number)[] = [];
+    let idx = 1;
+
+    if (date) {
+      query += ` AND date = $${idx++}`;
+      params.push(date);
+    }
+    if (status) {
+      query += ` AND status = $${idx++}`;
+      params.push(status);
+    }
+    if (search) {
+      query += ` AND (name ILIKE $${idx} OR phone ILIKE $${idx} OR reason ILIKE $${idx})`;
+      params.push(`%${search}%`);
+      idx++;
+    }
+
+    query += " ORDER BY date DESC, time_slot ASC";
+
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
     console.error("List error:", err);
     res.status(500).json({ error: "Could not load appointments" });
+  }
+});
+
+// Get appointment stats for admin dashboard
+app.get("/api/appointments/stats", async (_req: Request, res: Response) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const [totalResult, todayResult, pendingResult, confirmedResult, cancelledResult] = await Promise.all([
+      pool.query("SELECT COUNT(*) FROM appointments"),
+      pool.query("SELECT COUNT(*) FROM appointments WHERE date = $1", [today]),
+      pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'pending'"),
+      pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'confirmed'"),
+      pool.query("SELECT COUNT(*) FROM appointments WHERE status = 'cancelled'"),
+    ]);
+    res.json({
+      total: parseInt(totalResult.rows[0].count, 10),
+      today: parseInt(todayResult.rows[0].count, 10),
+      pending: parseInt(pendingResult.rows[0].count, 10),
+      confirmed: parseInt(confirmedResult.rows[0].count, 10),
+      cancelled: parseInt(cancelledResult.rows[0].count, 10),
+    });
+  } catch (err) {
+    console.error("Stats error:", err);
+    res.status(500).json({ error: "Could not load stats" });
+  }
+});
+
+// Update appointment status (admin)
+app.patch("/api/appointments/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const validStatuses = ["pending", "confirmed", "cancelled", "completed"];
+  if (!validStatuses.includes(status)) {
+    res.status(400).json({ error: "Invalid status" });
+    return;
+  }
+  try {
+    await pool.query("UPDATE appointments SET status = $1 WHERE id = $2", [status, id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ error: "Could not update appointment" });
+  }
+});
+
+// Delete appointment (admin)
+app.delete("/api/appointments/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM appointments WHERE id = $1", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Could not delete appointment" });
   }
 });
 

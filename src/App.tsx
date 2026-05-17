@@ -11,6 +11,7 @@ import FAQ from "@/pages/FAQ";
 import Blog from "@/pages/Blog";
 import Contact from "@/pages/Contact";
 import Appointment from "@/pages/Appointment";
+import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/contact" component={Contact} />
       <Route path="/appointment" component={Appointment} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
